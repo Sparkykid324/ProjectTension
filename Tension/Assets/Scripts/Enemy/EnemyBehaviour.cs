@@ -6,18 +6,24 @@ using UnityEngine.UIElements;
 
 public class EnemyChasePlayer : MonoBehaviour
 {
-    public int maxVisitedWaypoints = 5; // Maximum number of waypoints the enemy can visit
     private NavMeshAgent agent; // Reference to the NavMeshAgent component
     private Transform player; // Reference to the player's Transform
-    public float chaseDistance = 10.0f; // Distance at which the enemy starts chasing the player
-    private float stoppingDistance = 1.0f; // Distance at which the enemy stops when it reaches the player
+    public int maxVisitedWaypoints = 5; // Maximum number of waypoints the enemy can visit
+    public float chaseDistance = 30.0f; // Distance at which the enemy starts chasing the player
+    private float stoppingDistance = 10.0f; // Distance at which the enemy stops when it reaches the player
     public float fieldOfViewAngle = 90.0f; // Field of view angle within which the enemy can detect the player
+
     private List<Transform> waypoints = new List<Transform>(); // List to store available waypoints
     private List<Transform> visitedWaypoints = new List<Transform>(); // List to track visited waypoints
+
     public bool chasingPlayer = false; // Flag to indicate whether the enemy is currently chasing the player
     public Vector3 lastKnownPlayerPosition; // The last known position of the player
     public float timeSinceLastSight; // Time elapsed since the enemy last saw the player
     public float waitDuration = 3.0f; // Duration for which the enemy waits after losing sight of the player
+
+    //EnemyHealth
+    public float maxHealth = 3f;
+    public float currentHealth = 3f;
 
     void Start()
     {
@@ -25,6 +31,8 @@ public class EnemyChasePlayer : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player").transform; // Find and store the player's Transform
         FindWaypoints(); // Populate the list of available waypoints in the scene
         MoveToRandomWaypoint(); // Start by moving to a random waypoint
+        currentHealth = maxHealth;
+
     }
 
     void Update()
@@ -42,7 +50,12 @@ public class EnemyChasePlayer : MonoBehaviour
 
                 if (distanceToPlayer <= stoppingDistance)
                 {
-                    // You can add code here to attack the player or perform other actions
+                    agent.isStopped = true; // Stops the enemy from moving
+                    AttackPlayer();
+                }
+                else
+                {
+                    agent.isStopped = false; // Allows the enemy to move again
                 }
             }
             else if (chasingPlayer)
@@ -58,12 +71,13 @@ public class EnemyChasePlayer : MonoBehaviour
                 if (Vector3.Distance(transform.position, lastKnownPlayerPosition) < stoppingDistance)
                 {
                     chasingPlayer = false;
-                    chaseDistance = 10.0f; // Reset chase distance
+                    chaseDistance = 30.0f; // Reset chase distance
                     fieldOfViewAngle = 90.0f; // Reset field of view angle
                     MoveToRandomWaypoint();
                 }
             }
         }
+
         else if (!chasingPlayer && agent.remainingDistance < 0.1f)
         {
             MoveToRandomWaypoint();
@@ -132,4 +146,19 @@ public class EnemyChasePlayer : MonoBehaviour
     {
         agent.SetDestination(lastKnownPlayerPosition); // Return to the last known player position
     }
+    void AttackPlayer()
+    {
+        
+        
+    }
+
+    public void TakeDamage()
+    {
+        currentHealth -= 1f;
+        if (currentHealth <= 0)
+        {
+            Destroy(gameObject);
+        }
+    }
+
 }
