@@ -8,6 +8,7 @@ TagManager:
   - ImportantPipe
   - Waypoint
   - Enemy
+  - wall
   layers:
   - Default
   - TransparentFX
@@ -15,7 +16,7 @@ TagManager:
   - Ground
   - Water
   - UI
-  - 
+  - Enemy
   - 
   - 
   - 

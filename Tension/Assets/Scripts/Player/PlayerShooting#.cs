@@ -48,7 +48,7 @@ public class PlayerShooting : MonoBehaviour
         if (Physics.Raycast(ray, out hit, shootingRange, enemyLayer))
         {
             // Get the EnemyHealth component from the hit game object
-            EnemyHealth enemyHealth = hit.collider.GetComponent<EnemyHealth>();
+            EnemyChasePlayer enemyHealth = hit.collider.GetComponent<EnemyChasePlayer>();
 
             if (enemyHealth != null) // If the enemyHealth is not null, then we hit an enemy
             {
