@@ -9,6 +9,8 @@ TagManager:
   - Waypoint
   - Enemy
   - wall
+  - Ammo
+  - VisitedWaypoint
   layers:
   - Default
   - TransparentFX

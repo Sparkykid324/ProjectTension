@@ -1,29 +1,39 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UIElements;
 
 public class EnemyChasePlayer : MonoBehaviour
 {
-    private NavMeshAgent agent; // Reference to the NavMeshAgent component
-    private Transform player; // Reference to the player's Transform
-    public int maxVisitedWaypoints = 5; // Maximum number of waypoints the enemy can visit
-    public float chaseDistance = 30.0f; // Distance at which the enemy starts chasing the player
-    private float stoppingDistance = 10.0f; // Distance at which the enemy stops when it reaches the player
-    public float fieldOfViewAngle = 90.0f; // Field of view angle within which the enemy can detect the player
+    //Movement
+    private NavMeshAgent agent;
+    private Transform player; 
+    private float stoppingDistance = 10.0f;
+    public List<Transform> waypoints = new List<Transform>(); 
+    public List<Transform> visitedWaypoints = new List<Transform>();
+    public int maxVisitedWaypoints = 5;
+    private bool isMoving;
 
-    private List<Transform> waypoints = new List<Transform>(); // List to store available waypoints
-    private List<Transform> visitedWaypoints = new List<Transform>(); // List to track visited waypoints
+    //Chasing
+    public float chaseDistance = 30.0f;   
+    public float fieldOfViewAngle = 90.0f; 
+    public bool chasingPlayer = false;
+    public Vector3 lastKnownPlayerPosition; 
+    public float timeSinceLastSight;
+    public float waitDuration = 3.0f; 
 
-    public bool chasingPlayer = false; // Flag to indicate whether the enemy is currently chasing the player
-    public Vector3 lastKnownPlayerPosition; // The last known position of the player
-    public float timeSinceLastSight; // Time elapsed since the enemy last saw the player
-    public float waitDuration = 3.0f; // Duration for which the enemy waits after losing sight of the player
-
-    //EnemyHealth
+    //Death
+    public GameObject ammoPickup;
     public float maxHealth = 3f;
     public float currentHealth = 3f;
+
+    //Attack
+    private bool canAttack = true;
+    private bool isCooldownActive = false;
+    public float attackCooldown = 1f;
+    public int hitPlayerCount = 0;
 
     void Start()
     {
@@ -51,10 +61,16 @@ public class EnemyChasePlayer : MonoBehaviour
                 if (distanceToPlayer <= stoppingDistance)
                 {
                     agent.isStopped = true; // Stops the enemy from moving
-                    AttackPlayer();
+                    if(canAttack && !isCooldownActive)
+                    {
+                        AttackPlayer();
+                        isCooldownActive = true;
+                        StartCoroutine(AttackCooldown());
+                    }
                 }
                 else
                 {
+                    hitPlayerCount = 0;
                     agent.isStopped = false; // Allows the enemy to move again
                 }
             }
@@ -73,13 +89,16 @@ public class EnemyChasePlayer : MonoBehaviour
                     chasingPlayer = false;
                     chaseDistance = 30.0f; // Reset chase distance
                     fieldOfViewAngle = 90.0f; // Reset field of view angle
+                    isMoving = true;
+                    FindWaypoints();
                     MoveToRandomWaypoint();
                 }
             }
         }
 
-        else if (!chasingPlayer && agent.remainingDistance < 0.1f)
+        else if (!chasingPlayer && !isMoving && !agent.pathPending && agent.remainingDistance < 1.0f)
         {
+            isMoving = true;
             MoveToRandomWaypoint();
         }
     }
@@ -108,6 +127,7 @@ public class EnemyChasePlayer : MonoBehaviour
 
     void FindWaypoints()
     {
+        waypoints.Clear();
         GameObject[] waypointObjects = GameObject.FindGameObjectsWithTag("Waypoint");
         foreach (GameObject waypointObject in waypointObjects)
         {
@@ -123,23 +143,49 @@ public class EnemyChasePlayer : MonoBehaviour
             return;
         }
 
-        List<Transform> availableWaypoints = new List<Transform>(waypoints);
+        int randomIndex = Random.Range(0, waypoints.Count);
+        Transform randomWaypoint = waypoints[randomIndex];
 
-        int count = Mathf.Min(maxVisitedWaypoints, visitedWaypoints.Count);
-        for (int i = 0; i < count; i++)
+
+        agent.SetDestination(randomWaypoint.position); // Move to the random waypoint
+        Debug.Log("My Destination is: " + randomWaypoint.name);
+
+        // Filters Waypoints
+        randomWaypoint.tag = "VisitedWaypoint";
+        visitedWaypoints.Add(randomWaypoint);
+        waypoints.Remove(randomWaypoint);
+        
+        // int i = 0;
+        // while (visitedWaypoints.Count > 5 && i < visitedWaypoints.Count)
+        // {
+        //     if (visitedWaypoints[i].tag == "VisitedWaypoint")
+        //     {
+        //         visitedWaypoints[i].tag = "Waypoint";
+        //         visitedWaypoints.RemoveAt(i);
+        //         waypoints.Add(visitedWaypoints[i]);
+        //         i = -1; // Start over from the beginning of the list
+        //     }
+        //     else
+        //     {
+        //         i++;
+        //     }
+        // }
+        int i = 0;
+        while (visitedWaypoints.Count > 5 && i < visitedWaypoints.Count)
         {
-            availableWaypoints.Remove(visitedWaypoints[visitedWaypoints.Count - 1]);
-            visitedWaypoints.RemoveAt(visitedWaypoints.Count - 1);
+            if (visitedWaypoints[i].tag == "VisitedWaypoint")
+            {
+                visitedWaypoints[i].tag = "Waypoint";
+                waypoints.Add(visitedWaypoints[i]); // Add it back to the waypoints list
+                visitedWaypoints.RemoveAt(i);
+                i = -1; // Start over from the beginning of the list
+            }
+            else
+            {
+                i++;
+            }
         }
-
-        if (availableWaypoints.Count > 0)
-        {
-            int randomIndex = Random.Range(0, availableWaypoints.Count);
-            Transform targetWaypoint = availableWaypoints[randomIndex];
-
-            agent.SetDestination(targetWaypoint.position); // Move to the selected waypoint
-            visitedWaypoints.Add(targetWaypoint); // Track that the waypoint has been visited
-        }
+        isMoving = false;
     }
 
     void ReturnToLastKnownPlayerPosition()
@@ -148,8 +194,40 @@ public class EnemyChasePlayer : MonoBehaviour
     }
     void AttackPlayer()
     {
+        transform.LookAt(player);
+
+        StartCoroutine(FireShots());
         
-        
+    }
+
+    IEnumerator AttackCooldown()
+    {
+        yield return new WaitForSeconds(attackCooldown);
+        canAttack = true;
+        isCooldownActive = false;
+    }
+
+    IEnumerator FireShots()
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            RaycastHit hit;
+            if (Physics.Raycast(transform.position, transform.forward, out hit, Mathf.Infinity))
+            {
+                // Check if the ray hits the player
+                if (hit.transform.CompareTag("Player"))
+                {
+                    hitPlayerCount++;
+                    if (hitPlayerCount == 3)
+                    {
+                        hit.transform.GetComponent<PlayerHealth>().TakeDamage();
+                        hitPlayerCount = 0;
+                    }
+                    
+                }
+            }
+            yield return new WaitForSeconds(1f);
+        }
     }
 
     public void TakeDamage()
@@ -157,6 +235,7 @@ public class EnemyChasePlayer : MonoBehaviour
         currentHealth -= 1f;
         if (currentHealth <= 0)
         {
+            Instantiate(ammoPickup, transform.position, transform.rotation);
             Destroy(gameObject);
         }
     }
