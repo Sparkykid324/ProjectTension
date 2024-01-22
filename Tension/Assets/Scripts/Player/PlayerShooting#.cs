@@ -37,7 +37,7 @@ public class PlayerShooting : MonoBehaviour
             Reload();
         }
 
-        PlayerLooking(); // Calls the PlayerLooking function
+        // PlayerLooking(); // Calls the PlayerLooking function
     }
 
     private void Shoot() // Shoots the gun by raycasting 
@@ -84,22 +84,22 @@ public class PlayerShooting : MonoBehaviour
         }
     }
 
-    public void PlayerLooking()
-    {   
-        //Player Looking
-        float mouseX = Input.GetAxis("Mouse X");
-        float mouseY = Input.GetAxis("Mouse Y");
+    // public void PlayerLooking()
+    // {   
+    //     //Player Looking
+    //     float mouseX = Input.GetAxis("Mouse X");
+    //     float mouseY = Input.GetAxis("Mouse Y");
 
-        //Player Rotation
-        Vector3 currentRotation = transform.localEulerAngles;
-        currentRotation.y += mouseX;
-        transform.localRotation = Quaternion.AngleAxis(currentRotation.y, Vector3.up);
+    //     //Player Rotation
+    //     Vector3 currentRotation = transform.localEulerAngles;
+    //     currentRotation.y += mouseX;
+    //     transform.localRotation = Quaternion.AngleAxis(currentRotation.y, Vector3.up);
 
-        //Camera Rotation
-        Vector3 currentCameraRotation = playerCamera.transform.localEulerAngles;
-        currentCameraRotation.x -= mouseY;
-        playerCamera.transform.localRotation = Quaternion.AngleAxis(currentCameraRotation.x, Vector3.right);
-    }
+    //     //Camera Rotation
+    //     Vector3 currentCameraRotation = playerCamera.transform.localEulerAngles;
+    //     currentCameraRotation.x -= mouseY;
+    //     playerCamera.transform.localRotation = Quaternion.AngleAxis(currentCameraRotation.x, Vector3.right);
+    // }
 
     public void AmmoRefill() //Refills the ammo pool
     {

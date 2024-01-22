@@ -151,18 +151,18 @@ public class EnemyChasePlayer : MonoBehaviour
         Debug.Log("My Destination is: " + randomWaypoint.name);
 
         // Filters Waypoints
-        randomWaypoint.tag = "VisitedWaypoint";
         visitedWaypoints.Add(randomWaypoint);
         waypoints.Remove(randomWaypoint);
-        
+
+        // Tag assignement (ONLY ONE AI CAN BE IN THE WORLD AT A TIME)
         // int i = 0;
         // while (visitedWaypoints.Count > 5 && i < visitedWaypoints.Count)
         // {
         //     if (visitedWaypoints[i].tag == "VisitedWaypoint")
         //     {
         //         visitedWaypoints[i].tag = "Waypoint";
+        //         waypoints.Add(visitedWaypoints[i]); // Add it back to the waypoints list
         //         visitedWaypoints.RemoveAt(i);
-        //         waypoints.Add(visitedWaypoints[i]);
         //         i = -1; // Start over from the beginning of the list
         //     }
         //     else
@@ -170,20 +170,15 @@ public class EnemyChasePlayer : MonoBehaviour
         //         i++;
         //     }
         // }
+        // isMoving = false;
+
         int i = 0;
         while (visitedWaypoints.Count > 5 && i < visitedWaypoints.Count)
         {
-            if (visitedWaypoints[i].tag == "VisitedWaypoint")
-            {
-                visitedWaypoints[i].tag = "Waypoint";
-                waypoints.Add(visitedWaypoints[i]); // Add it back to the waypoints list
-                visitedWaypoints.RemoveAt(i);
-                i = -1; // Start over from the beginning of the list
-            }
-            else
-            {
-                i++;
-            }
+            waypoints.Add(visitedWaypoints[i]); // Add it back to the waypoints list
+            visitedWaypoints.RemoveAt(i);
+            i = -1; // Start over from the beginning of the list
+            i++;
         }
         isMoving = false;
     }
