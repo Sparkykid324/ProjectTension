@@ -8,7 +8,7 @@ public class Movement : MonoBehaviour
     [SerializeField] Transform playerCamera;
     [SerializeField][Range(0.0f, 0.5f)] float mouseSmoothTime = 0.03f;
     [SerializeField] bool cursorLock = true;
-    [SerializeField] float mouseSensitivity = 3.5f;
+    [SerializeField] public float mouseSensitivity = 3.5f;
     [SerializeField] float Speed = 6.0f;
     [SerializeField][Range(0.0f, 0.5f)] float moveSmoothTime = 0.3f;
     [SerializeField] float gravity = -30f;
@@ -37,6 +37,9 @@ public class Movement : MonoBehaviour
     Vector2 currentDirVelocity;
     Vector3 velocity;
 
+    //variable to record whether game is paused or not to prevent camera movement (currently not working)
+    public bool pauseLock = false;
+
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -62,17 +65,26 @@ public class Movement : MonoBehaviour
 
     void UpdateMouse()
     {
-        Vector2 targetMouseDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
+        if (pauseLock == false)
+        {
+            Vector2 targetMouseDelta = new Vector2(Input.GetAxis("Mouse X"), Input.GetAxis("Mouse Y"));
 
-        currentMouseDelta = Vector2.SmoothDamp(currentMouseDelta, targetMouseDelta, ref currentMouseDeltaVelocity, mouseSmoothTime);
+            currentMouseDelta = Vector2.SmoothDamp(currentMouseDelta, targetMouseDelta, ref currentMouseDeltaVelocity, mouseSmoothTime);
 
-        cameraCap -= currentMouseDelta.y * mouseSensitivity;
+            cameraCap -= currentMouseDelta.y * mouseSensitivity;
 
-        cameraCap = Mathf.Clamp(cameraCap, -90.0f, 90.0f);
+            cameraCap = Mathf.Clamp(cameraCap, -90.0f, 90.0f);
 
-        playerCamera.localEulerAngles = Vector3.right * cameraCap;
+            playerCamera.localEulerAngles = Vector3.right * cameraCap;
 
-        transform.Rotate(Vector3.up * currentMouseDelta.x * mouseSensitivity);
+            transform.Rotate(Vector3.up * currentMouseDelta.x * mouseSensitivity);
+
+            //Debug.Log("pauselock is false");
+        }
+        else
+        {
+            //Debug.Log("pauselock is true");
+        }
     }
 
     void UpdateMove()
