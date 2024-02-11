@@ -143,6 +143,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0f062683a82d124c8ed4020a752b2e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  waypoints: []
+  visitedWaypoints: []
   maxVisitedWaypoints: 5
   chaseDistance: 10
   fieldOfViewAngle: 90
@@ -150,5 +152,8 @@ MonoBehaviour:
   lastKnownPlayerPosition: {x: 0, y: 0, z: 0}
   timeSinceLastSight: 0
   waitDuration: 5
+  ammoPickup: {fileID: 4492884241374132763, guid: 4e4c9d32b762c53489d4d5741e300f6b, type: 3}
   maxHealth: 3
   currentHealth: 3
+  attackCooldown: 1
+  hitPlayerCount: 0

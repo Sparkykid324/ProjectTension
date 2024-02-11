@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class AmmoPickup : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public int ammoAmount = 14;
 
-    // Update is called once per frame
-    void Update()
+    void OnTriggerEnter(Collider other)
+{
+    if (other.gameObject.CompareTag("Player"))
     {
-        
+        other.gameObject.GetComponent<PlayerShooting>().ammoPool += ammoAmount;
+        //destroy self
+        Destroy(gameObject);
     }
+}
 }

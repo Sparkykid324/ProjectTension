@@ -47,6 +47,7 @@ public class EnemyChasePlayer : MonoBehaviour
 
     void Update()
     {
+
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
         if (distanceToPlayer <= chaseDistance)
@@ -227,12 +228,13 @@ public class EnemyChasePlayer : MonoBehaviour
 
     public void TakeDamage()
     {
-        currentHealth -= 1f;
         if (currentHealth <= 0)
         {
-            Instantiate(ammoPickup, transform.position, transform.rotation);
+            Instantiate(ammoPickup, transform.position, Quaternion.identity);
+            Debug.Log("Enemy is dead!");
             Destroy(gameObject);
         }
+        currentHealth -= 1f;
     }
 
 }
