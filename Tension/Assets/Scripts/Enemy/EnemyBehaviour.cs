@@ -34,6 +34,7 @@ public class EnemyChasePlayer : MonoBehaviour
     private bool isCooldownActive = false;
     public float attackCooldown = 1f;
     public int hitPlayerCount = 0;
+    public GameObject gunshotLight;
 
     void Start()
     {
@@ -207,6 +208,7 @@ public class EnemyChasePlayer : MonoBehaviour
     {
         for (int i = 0; i < 3; i++)
         {
+            gunshotLight.SetActive(true);
             RaycastHit hit;
             if (Physics.Raycast(transform.position, transform.forward, out hit, Mathf.Infinity))
             {
@@ -223,6 +225,7 @@ public class EnemyChasePlayer : MonoBehaviour
                 }
             }
             yield return new WaitForSeconds(1f);
+            gunshotLight.SetActive(false);
         }
     }
 
