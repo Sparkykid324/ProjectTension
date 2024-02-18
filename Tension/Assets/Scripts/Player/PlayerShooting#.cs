@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Animations;
+using TMPro;
 
 
 public class PlayerShooting : MonoBehaviour
@@ -17,17 +18,23 @@ public class PlayerShooting : MonoBehaviour
     private int ammoNeeded;
     public int maxBullets = 7;
 
+    //Display
+    public TMP_Text ammoDisplay;
+
+
 
 
     private void Start()
     {
         currentBullets = maxBullets; //Sets the current bullets to the max bullets
         Cursor.lockState = CursorLockMode.Locked; //Locks the cursor to the center of the screen
+        ammoDisplay = GameObject.Find("AmmoDisplay").GetComponent<TMP_Text>(); //Finds the ammo display
+        ammoDisplay.text = currentBullets + " / " + ammoPool; //Displays the current bullets and ammo pool
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0) && currentBullets > 0) // Shoots the gun if the player clicks and there is ammo in the gun
+        if (Input.GetMouseButtonDown(0) && currentBullets > 0 && Time.timeScale == 1.0f) // Shoots the gun if the player clicks and there is ammo in the gun
         {
             Shoot();
         }
@@ -36,6 +43,7 @@ public class PlayerShooting : MonoBehaviour
         {
             Reload();
         }
+        ammoDisplay.text = currentBullets + " / " + ammoPool; //Displays the current bullets and ammo pool
 
         // PlayerLooking(); // Calls the PlayerLooking function
     }
