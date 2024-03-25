@@ -16,13 +16,15 @@ public class Movement : MonoBehaviour
     [SerializeField] LayerMask ground;
 
     public float jumpHeight = 6f;
-    float velocityY;
-    bool isGrounded;
+    [SerializeField] float velocityY;
+    [SerializeField] bool isGrounded;
 
     bool isSprinting = false;
     float originalSpeed;
     float sprintSpeed;
 
+    [SerializeField] Transform crouchGroundCheck;
+    [SerializeField] bool isCrouchingCheck = false;
     bool isCrouching = false;
     float standingHeight;
     float crouchingHeight = 1.25f;
@@ -90,19 +92,20 @@ public class Movement : MonoBehaviour
     void UpdateMove()
     {
         isGrounded = Physics.CheckSphere(groundCheck.position, 0.2f, ground);
+        isCrouchingCheck = Physics.CheckSphere(crouchGroundCheck.position, 0.5f, ground); //checks empty to see if player should be crouching (used to prevent crouching whilst player is airborne)
 
         Vector2 targetDir = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         targetDir.Normalize();
 
         currentDir = Vector2.SmoothDamp(currentDir, targetDir, ref currentDirVelocity, moveSmoothTime);
 
-        velocityY -= gravity * -2.0f * Time.deltaTime;
+        //velocityY -= gravity * -2.0f * Time.deltaTime; //PART OF OLD BROKEN JUMP - constantly added negative y velocity (Removing this broke crouch)
 
         Vector3 velocity = (transform.forward * currentDir.y + transform.right * currentDir.x) * Speed + Vector3.up * velocityY;
 
         controller.Move(velocity * Time.deltaTime);
 
-        if (isGrounded && Input.GetButtonDown("Jump"))
+        /*if (isGrounded && Input.GetButtonDown("Jump")) PART OF OLD BROKEN JUMP
         {
             velocityY = Mathf.Sqrt(jumpHeight * -2f * gravity);
         }
@@ -110,6 +113,24 @@ public class Movement : MonoBehaviour
         if (!isGrounded && controller.velocity.y < -1f)
         {
             velocityY = -8f;
+        } PART OF OLD BROKEN JUMP*/
+
+        //Jump
+        if (!isCrouching && controller.velocity.y < -0.1f && isGrounded)
+        {
+            velocityY = 0f; //resets y velocity when touching the ground (Seems to be working intermittently)
+            //Debug.Log("Y Velocity has been Reset.");
+        }
+
+        if (isGrounded && Input.GetButtonDown("Jump"))
+        {
+            velocityY = Mathf.Sqrt(jumpHeight * -2f * gravity);
+        }
+
+        if (!isGrounded /*&& controller.velocity.y < 0.1f*/)
+        {
+            velocityY -= gravity * -2.0f * Time.deltaTime;
+            //Debug.Log("going down");
         }
 
         //Sprint
@@ -132,21 +153,22 @@ public class Movement : MonoBehaviour
         }
 
         //Crouch
-        if (Input.GetKey(KeyCode.LeftControl))
+        if (Input.GetKey(KeyCode.LeftControl) && isGrounded && !isCrouchingCheck)
         {
             isSprinting = false;
             isCrouching = true;
         }
-        else
+        else if (!Input.GetKey(KeyCode.LeftControl) || !isCrouchingCheck)
         {
             isCrouching = false;
         }
 
         if (isCrouching == true)
         {
+            velocityY = -3.0f; //adds gravity when crouching in order for the capsule to actually move down despite being grounded
             controller.height = crouchingHeight;
             Speed = crouchSpeed;
-            isGrounded = false;
+            //isGrounded = false;
         }
         else
         {
