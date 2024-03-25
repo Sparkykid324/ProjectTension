@@ -116,7 +116,7 @@ public class Movement : MonoBehaviour
         } PART OF OLD BROKEN JUMP*/
 
         //Jump
-        if (!isCrouching && controller.velocity.y < -0.1f && isGrounded)
+        if (!isCrouching && controller.velocity.y < -0.1f && isGrounded || controller.velocity.y < 0.1f && isGrounded)
         {
             velocityY = 0f; //resets y velocity when touching the ground (Seems to be working intermittently)
             //Debug.Log("Y Velocity has been Reset.");
