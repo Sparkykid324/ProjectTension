@@ -15,6 +15,8 @@ public class EnemyChasePlayer : MonoBehaviour
     public List<Transform> visitedWaypoints = new List<Transform>();
     public int maxVisitedWaypoints = 5;
     private bool isMoving;
+    public float rotationSpeed = 999999.1f; // Adjust as needed
+
 
     //Chasing
     public float chaseDistance = 30.0f;   
@@ -59,15 +61,27 @@ public class EnemyChasePlayer : MonoBehaviour
                 chasingPlayer = true;
                 chaseDistance = 100.0f; // Increase chase distance (e.g., for longer visibility)
                 fieldOfViewAngle = 300.0f; // Increase field of view angle (e.g., for wider visibility)
+                                
+                // Calculate the direction to the player
+                Vector3 targetDirection = (player.position - transform.position).normalized;
+
+                // Calculate the rotation needed to look at the player
+                Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
+
+                // Smoothly rotate towards the player
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+    
 
                 if (distanceToPlayer <= stoppingDistance)
                 {
                     agent.isStopped = true; // Stops the enemy from moving
                     if(canAttack && !isCooldownActive)
                     {
+    
                         AttackPlayer();
                         isCooldownActive = true;
                         StartCoroutine(AttackCooldown());
+                        Debug.Log("Attacking");
                     }
                 }
                 else
@@ -141,7 +155,6 @@ public class EnemyChasePlayer : MonoBehaviour
     {
         if (waypoints.Count == 0)
         {
-            Debug.LogWarning("No waypoints are found.");
             return;
         }
 
@@ -150,29 +163,10 @@ public class EnemyChasePlayer : MonoBehaviour
 
 
         agent.SetDestination(randomWaypoint.position); // Move to the random waypoint
-        Debug.Log("My Destination is: " + randomWaypoint.name);
 
         // Filters Waypoints
         visitedWaypoints.Add(randomWaypoint);
         waypoints.Remove(randomWaypoint);
-
-        // Tag assignement (ONLY ONE AI CAN BE IN THE WORLD AT A TIME)
-        // int i = 0;
-        // while (visitedWaypoints.Count > 5 && i < visitedWaypoints.Count)
-        // {
-        //     if (visitedWaypoints[i].tag == "VisitedWaypoint")
-        //     {
-        //         visitedWaypoints[i].tag = "Waypoint";
-        //         waypoints.Add(visitedWaypoints[i]); // Add it back to the waypoints list
-        //         visitedWaypoints.RemoveAt(i);
-        //         i = -1; // Start over from the beginning of the list
-        //     }
-        //     else
-        //     {
-        //         i++;
-        //     }
-        // }
-        // isMoving = false;
 
         int i = 0;
         while (visitedWaypoints.Count > 5 && i < visitedWaypoints.Count)
@@ -190,12 +184,20 @@ public class EnemyChasePlayer : MonoBehaviour
         agent.SetDestination(lastKnownPlayerPosition); // Return to the last known player position
     }
     void AttackPlayer()
-    {
-        transform.LookAt(player);
+{
+     // Start shooting coroutine
+    StartCoroutine(FireShots());
+    
+    // // Calculate the direction to the player
+    // Vector3 targetDirection = (player.position - transform.position).normalized;
 
-        StartCoroutine(FireShots());
-        
-    }
+    // // Calculate the rotation needed to look at the player
+    // Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
+
+    // // Smoothly rotate towards the player
+    // transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+    
+}
 
     IEnumerator AttackCooldown()
     {
@@ -206,6 +208,7 @@ public class EnemyChasePlayer : MonoBehaviour
 
     IEnumerator FireShots()
     {
+
         for (int i = 0; i < 3; i++)
         {
             gunshotLight.SetActive(true);
@@ -224,9 +227,10 @@ public class EnemyChasePlayer : MonoBehaviour
                     
                 }
             }
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(attackCooldown);
             gunshotLight.SetActive(false);
         }
+
     }
 
     public void TakeDamage()
@@ -234,7 +238,6 @@ public class EnemyChasePlayer : MonoBehaviour
         if (currentHealth <= 0)
         {
             Instantiate(ammoPickup, transform.position, Quaternion.identity);
-            Debug.Log("Enemy is dead!");
             Destroy(gameObject);
         }
         currentHealth -= 1f;
