@@ -219,7 +219,7 @@ public class EnemyChasePlayer : MonoBehaviour
                 if (hit.transform.CompareTag("Player"))
                 {
                     hitPlayerCount++;
-                    if (hitPlayerCount == 3)
+                    if (hitPlayerCount == 2)
                     {
                         hit.transform.GetComponent<PlayerHealth>().TakeDamage();
                         hitPlayerCount = 0;
