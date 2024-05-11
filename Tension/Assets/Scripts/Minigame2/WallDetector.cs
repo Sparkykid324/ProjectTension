@@ -8,7 +8,7 @@ public class WallDetector : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         Player.gameObject.SetActive(false);
-        Player.gameObject.transform.position = new Vector3(-105.2f, 4.81f, 40.67f);
+        Player.gameObject.transform.position = new Vector3(2499.7f, 5.0799f, 40.67f);
         Player.gameObject.SetActive(true);
     }
 }

@@ -11,6 +11,7 @@ TagManager:
   - wall
   - Ammo
   - VisitedWaypoint
+  - MiniPlayer
   layers:
   - Default
   - TransparentFX

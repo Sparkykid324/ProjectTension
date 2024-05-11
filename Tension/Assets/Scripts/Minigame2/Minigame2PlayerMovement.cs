@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Minigame2PlayerMovement : MonoBehaviour
 {
@@ -24,13 +25,18 @@ public class Minigame2PlayerMovement : MonoBehaviour
         if (cursorLock)
         {
             Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = true;
+            Cursor.visible = false;
         }
     }
 
     void Update()
     {
         UpdateMove();
+
+        /*if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            SceneManager.UnloadSceneAsync("minigame2");
+        }*/
     }
 
     void UpdateMove()
