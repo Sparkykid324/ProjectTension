@@ -10,7 +10,7 @@ public class EnemyChasePlayer : MonoBehaviour
     //Movement
     private NavMeshAgent agent;
     private Transform player; 
-    private float stoppingDistance = 10.0f;
+    private float stoppingDistance = 3.0f;
     public List<Transform> waypoints = new List<Transform>(); 
     public List<Transform> visitedWaypoints = new List<Transform>();
     public int maxVisitedWaypoints = 5;

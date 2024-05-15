@@ -28,7 +28,7 @@ public class PlayerHealth : MonoBehaviour
     
     public void TakeDamage()
     {
-        currentHealth -= 1f;
+        currentHealth -= 100000f;
         Image bloodImage = bloodEffect.GetComponent<Image>(); // Assign the Image component to a variable
         Color bloodColor = bloodImage.color; // Get the color from the Image component
         bloodColor.a = 0.52f; // Modify the alpha value of the color

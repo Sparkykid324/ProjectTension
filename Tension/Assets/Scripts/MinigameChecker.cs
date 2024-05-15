@@ -10,7 +10,7 @@ public class MinigameChecker : MonoBehaviour
     public GameObject Crosshair;
     public GameObject PauseMenu;
     
-    public static bool Minigame1Complete = false;
+    public static bool Minigame1Complete = true;
     public static bool Minigame2Complete = false;
 
     public void Update()

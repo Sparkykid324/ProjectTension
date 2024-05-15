@@ -11,6 +11,8 @@ public class PauseMenu : MonoBehaviour
 
     public Movement movement;
 
+    public GameObject playerUI;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -36,6 +38,7 @@ public class PauseMenu : MonoBehaviour
     void Stop()
     {
         PauseMenuCanvas.SetActive(true);
+        playerUI.SetActive(false);
         Time.timeScale = 0f;
         Paused = true;
         Cursor.visible = true;
@@ -47,6 +50,7 @@ public class PauseMenu : MonoBehaviour
     public void Play()
     {
         PauseMenuCanvas.SetActive(false);
+        playerUI.SetActive(true);
         Time.timeScale = 1f;
         Paused = false;
         Cursor.visible = false;
