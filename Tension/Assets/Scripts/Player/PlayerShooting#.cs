@@ -21,8 +21,10 @@ public class PlayerShooting : MonoBehaviour
     //Display
     public TMP_Text ammoDisplay;
 
-
-
+    //Animation
+    public Animator gunAnimator;
+    public string animationClipName = "Shoot";
+    public string reloadClipName = "Reload";
 
     private void Start()
     {
@@ -30,6 +32,7 @@ public class PlayerShooting : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked; //Locks the cursor to the center of the screen
         ammoDisplay = GameObject.Find("AmmoDisplay").GetComponent<TMP_Text>(); //Finds the ammo display
         ammoDisplay.text = currentBullets + " / " + ammoPool; //Displays the current bullets and ammo pool
+
     }
 
     private void Update()
@@ -52,6 +55,8 @@ public class PlayerShooting : MonoBehaviour
     {
         Ray ray = playerCamera.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
+
+        gunAnimator.SetTrigger(animationClipName); //Plays the shooting animation
 
         if (Physics.Raycast(ray, out hit, shootingRange, enemyLayer))
         {
@@ -77,6 +82,9 @@ public class PlayerShooting : MonoBehaviour
             ammoNeeded = maxBullets - currentBullets; //Figures out how much ammo it needs to reload 
             if(ammoPool >= ammoNeeded) // If there is enough ammo in the pool to reload the gun, it will reload the gun and subtract the ammo from the pool
             {
+
+                gunAnimator.SetTrigger(reloadClipName); //Plays the reload animation
+
                 currentBullets = maxBullets;
                 ammoPool -= ammoNeeded;
             }
@@ -112,5 +120,6 @@ public class PlayerShooting : MonoBehaviour
     public void AmmoRefill() //Refills the ammo pool
     {
         ammoPool =+ 7f;
+
     }
 }
